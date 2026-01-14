@@ -48,7 +48,6 @@ const CompletedScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // Empty state styles
   emptyListContainer: {
     flex: 1,
   },

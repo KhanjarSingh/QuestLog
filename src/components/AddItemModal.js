@@ -66,7 +66,6 @@ const AddItemModal = ({ visible, onClose, onTodoAdded }) => {
     >
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
-          {/* Close Button */}
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <MaterialCommunityIcons name="close" size={28} color="#333" />
           </TouchableOpacity>

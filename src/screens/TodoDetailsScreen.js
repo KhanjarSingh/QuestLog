@@ -1,95 +1,73 @@
-import React, { useState, useEffect } from 'react'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import AllScreen from './tabs/AllScreen';
-import CompletedScreen from './tabs/CompletedScreen'
-import PendingScreen from './tabs/PendingScreen';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useState } from 'react'
+import { createStackNavigator } from '@react-navigation/stack';
+import { TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { TouchableOpacity, Button } from 'react-native';
+import AllScreen from './tabs/AllScreen';
+import CompletedScreen from './tabs/CompletedScreen';
+import TodoEditModal from './TodoEditModal';
 import AddItemModal from '../components/AddItemModal';
 import { useTodoContext } from "../storage/todos";
-import { createStackNavigator } from '@react-navigation/stack';
-import TodoEditModal from './TodoEditModal';
 
-const Tab = createBottomTabNavigator()
-const Stack = createStackNavigator()
+const Stack = createStackNavigator();
 
-const TodoDetailsScreen = () => {
-    const [visible, setVisible] = useState(false)
-    
+const AddButton = ({ onPress }) => (
+    <TouchableOpacity onPress={onPress} style={{ marginRight: 15 }}>
+        <MaterialCommunityIcons name="plus-circle" size={32} color="#4F46E5" />
+    </TouchableOpacity>
+);
+
+export const QuestsStack = () => {
+    const [modalVisible, setModalVisible] = useState(false);
     const { refreshTodos } = useTodoContext();
 
     return (
         <>
-
-            <Tab.Navigator screenOptions={{
-                headerRight: () => (
-                    <TouchableOpacity
-                        onPress={() => setVisible(true)}
-                        style={{ marginRight: 15, }}
-                    >
-                        <MaterialCommunityIcons name="plus-circle-outline" size={26} color="blue" />
-                    </TouchableOpacity>
-                ),
+            <Stack.Navigator screenOptions={{
+                headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0 }
             }}>
-                <Tab.Screen name="All" component={AllScreen} options={{
-                    tabBarLabelStyle: {
-                        fontSize: 16,
-                        fontFamily: 'Roboto',
-                        fontWeight: 500,
-                    },
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name='format-list-bulleted' color={color} size={size} />
-                    )
-
-                }} />
-                <Tab.Screen name="Completed" component={CompletedScreen} options={{
-                    tabBarLabelStyle: {
-                        fontSize: 16,
-                        fontFamily: 'Roboto',
-                        fontWeight: 500,
-                    },
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name='check-circle-outline' color={color} size={size} />
-                    )
-                }} />
-                <Tab.Screen name='Pending' component={PendingScreen} options={{
-                    tabBarLabelStyle: {
-                        fontSize: 16,
-                        fontFamily: 'Roboto',
-                        fontWeight: 500,
-                    },
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name='clock-outline' color={color} size={size} />
-                    )
-                }} />
-            </Tab.Navigator>
-
-
+                <Stack.Screen
+                    name="Active Quests"
+                    component={AllScreen}
+                    options={{
+                        headerRight: () => <AddButton onPress={() => setModalVisible(true)} />,
+                        headerTitleStyle: { fontWeight: 'bold', fontSize: 20 }
+                    }}
+                />
+                <Stack.Screen
+                    name="TodoDetail"
+                    component={TodoEditModal}
+                    options={({ route }) => ({
+                        title: route.params?.todo?.title || 'Quest Details',
+                        presentation: 'modal'
+                    })}
+                />
+            </Stack.Navigator>
             <AddItemModal
-             visible={visible} 
-             onClose={() => setVisible(false)}
-             onTodoAdded={refreshTodos}  />
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                onTodoAdded={refreshTodos}
+            />
         </>
-    )
-}
-const TodoNavigator = () => {
+    );
+};
+
+export const HistoryStack = () => {
     return (
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{
+            headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0 }
+        }}>
             <Stack.Screen
-                name="TodoTabs"
-                component={TodoDetailsScreen}
-                options={{ headerShown: false }}
+                name="Quest History"
+                component={CompletedScreen}
+                options={{
+                    headerTitleStyle: { fontWeight: 'bold', fontSize: 20 }
+                }}
             />
             <Stack.Screen
                 name="TodoDetail"
                 component={TodoEditModal}
-                options={({ route }) => ({
-                    title: route.params?.todo?.title || 'Todo Details',
-                    headerBackTitle: 'Back',
-                })}
+                options={{ presentation: 'modal', title: 'Quest Log' }}
             />
         </Stack.Navigator>
     );
 };
-export default TodoNavigator

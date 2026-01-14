@@ -40,7 +40,6 @@ export const TodoProvider = ({ children }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (token) {
-        // Verify token by fetching user details
         const userData = await api('/auth/me', { headers: { Authorization: `Bearer ${token}` } });
         setUser(userData);
         loadTodos(token);
@@ -127,10 +126,9 @@ export const TodoProvider = ({ children }) => {
         body: JSON.stringify({ completed: !todo.completed })
       });
 
-      // Data contains { todo, xp, level }
       setTodos(todos.map(t => t.id === id ? data.todo : t));
-      if (data.xp !== user.xp) {
-        setUser({ ...user, xp: data.xp, level: data.level });
+      if (data.xp !== user.xp || data.streak !== user.streak || data.rank !== user.rank) {
+        setUser({ ...user, xp: data.xp, level: data.level, streak: data.streak, rank: data.rank });
       }
       return data.todo;
     } catch (error) {

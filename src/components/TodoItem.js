@@ -20,9 +20,9 @@ const TodoItem = ({ todo, onToggle, onPress }) => {
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
                 <MaterialCommunityIcons
-                    name={todo.completed ? "check-circle" : "circle-outline"}
-                    size={24}
-                    color={todo.completed ? "#22C55E" : "#9CA3AF"}
+                    name={todo.completed ? "lock" : "circle-outline"}
+                    size={20}
+                    color={todo.completed ? "#9CA3AF" : "#9CA3AF"}
                 />
             </TouchableOpacity>
 

@@ -1,22 +1,21 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import SettingsScreen from './src/screens/SettingsScreen';
-import TodoNavigator from './src/screens/TodoDetailsScreen';
-import AuthScreen from './src/screens/AuthScreen';
-import LeaderboardScreen from './src/screens/LeaderboardScreen';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import 'react-native-get-random-values';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TodoProvider, useTodoContext } from './src/storage/todos';
-
-const Drawer = createDrawerNavigator();
+import { QuestsStack, HistoryStack } from './src/screens/TodoDetailsScreen';
+import LeaderboardScreen from './src/screens/LeaderboardScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import AuthScreen from './src/screens/AuthScreen';
+import 'react-native-get-random-values';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
+const Tab = createBottomTabNavigator();
 
 const MainApp = () => {
   const { user, loading } = useTodoContext();
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4F46E5" />
       </View>
     );
@@ -27,11 +26,68 @@ const MainApp = () => {
   }
 
   return (
-    <Drawer.Navigator initialRouteName='My Quests'>
-      <Drawer.Screen name="My Quests" component={TodoNavigator} />
-      <Drawer.Screen name="Leaderboard" component={LeaderboardScreen} />
-      <Drawer.Screen name="Profile & Settings" component={SettingsScreen} />
-    </Drawer.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#4F46E5',
+        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarStyle: {
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+          backgroundColor: '#ffffff',
+          borderTopWidth: 0,
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        tabBarLabelStyle: {
+          fontWeight: '600',
+          fontSize: 12,
+        }
+      }}
+    >
+      <Tab.Screen
+        name="Quests"
+        component={QuestsStack}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="sword" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="History"
+        component={HistoryStack}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="history" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Leaderboard"
+        component={LeaderboardScreen}
+        options={{
+          headerShown: true,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="trophy" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={SettingsScreen}
+        options={{
+          headerShown: true,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-circle" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 };
 
@@ -46,10 +102,10 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  loadingContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 });

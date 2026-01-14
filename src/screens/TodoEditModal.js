@@ -1,18 +1,3 @@
-// TodoDetailScreen.js
-import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    Alert,
-    ScrollView,
-    TextInput
-} from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTodoContext, CATEGORIES, PRIORITIES } from '../storage/todos';
-
-
 const TodoEditModal = ({ route, navigation }) => {
     const { todo } = route.params;
     const { toggleTodo, deleteTodo, updateTodo } = useTodoContext();
