@@ -32,8 +32,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "ab625862-024d-42b9-9067-ba140876ad4d"
+        "projectId": "653ace48-1492-42b6-b190-1d0b76451e83"
       }
-    }
+    },
+    "owner": "khanjarsingh"
   }
 }

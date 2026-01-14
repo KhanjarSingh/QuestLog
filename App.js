@@ -7,8 +7,22 @@ import LeaderboardScreen from './src/screens/LeaderboardScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import AuthScreen from './src/screens/AuthScreen';
 import 'react-native-get-random-values';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+
 const Tab = createBottomTabNavigator();
+
+const MobileWrapper = ({ children }) => {
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.webContainer}>
+        <View style={styles.mobileFrame}>
+          {children}
+        </View>
+      </View>
+    );
+  }
+  return children;
+};
 
 const MainApp = () => {
   const { user, loading } = useTodoContext();
@@ -32,8 +46,8 @@ const MainApp = () => {
         tabBarActiveTintColor: '#4F46E5',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          height: 60,
-          paddingBottom: 8,
+          height: 85, // Increased from 60 to accomodate "safe area"
+          paddingBottom: 25, // Push icons up to avoid rounded corners
           paddingTop: 8,
           backgroundColor: '#ffffff',
           borderTopWidth: 0,
@@ -94,9 +108,11 @@ const MainApp = () => {
 export default function App() {
   return (
     <TodoProvider>
-      <NavigationContainer>
-        <MainApp />
-      </NavigationContainer>
+      <MobileWrapper>
+        <NavigationContainer>
+          <MainApp />
+        </NavigationContainer>
+      </MobileWrapper>
     </TodoProvider>
   );
 }
@@ -108,4 +124,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
+  webContainer: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    minHeight: '100vh',
+    overflow:'hidden'
+  },
+  mobileFrame: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 390,
+    maxHeight: 844,
+    backgroundColor: '#fff',
+    borderRadius: 40,
+    overflow: 'hidden',
+    borderWidth: 8,
+    borderColor: '#333',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.25,
+    shadowRadius: 25,
+    elevation: 15,
+  }
 });
