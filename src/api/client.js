@@ -1,4 +1,4 @@
-export const API_URL = 'https://a3bc703787af.ngrok-free.app/api';
+export const API_URL = 'https://questlog-backend-apoy.onrender.com/api';
 
 export const api = async (endpoint, options = {}) => {
     const headers = {
