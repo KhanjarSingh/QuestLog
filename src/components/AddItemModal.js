@@ -8,16 +8,19 @@ import {
   Dimensions,
   TextInput,
   Button,
-  Alert
+  Alert,
+  ScrollView
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTodoContext } from '../storage/todos';
+import { useTodoContext, CATEGORIES, PRIORITIES } from '../storage/todos';
 
 const { height } = Dimensions.get('window');
 
 const AddItemModal = ({ visible, onClose, onTodoAdded }) => {
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
+  const [category, setCategory] = useState('other');
+  const [priority, setPriority] = useState('medium');
   const { addTodo } = useTodoContext();
 
   const handleAddTodo = async () => {
@@ -27,12 +30,19 @@ const AddItemModal = ({ visible, onClose, onTodoAdded }) => {
     }
 
     try {
-      const result = await addTodo({ title: title.trim(), note: note.trim() });
+      const result = await addTodo({
+        title: title.trim(),
+        note: note.trim(),
+        category,
+        priority
+      });
       Alert.alert('Success', result);
 
       // Reset form
       setTitle('');
       setNote('');
+      setCategory('other');
+      setPriority('medium');
 
       // Close modal
       onClose();
@@ -79,6 +89,58 @@ const AddItemModal = ({ visible, onClose, onTodoAdded }) => {
             style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
             multiline
           />
+
+          <View style={styles.selectorContainer}>
+            <Text style={styles.sectionTitle}>Category</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
+              {Object.values(CATEGORIES).map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.chip,
+                    category === cat.id && { backgroundColor: cat.color, borderColor: cat.color }
+                  ]}
+                  onPress={() => setCategory(cat.id)}
+                >
+                  <MaterialCommunityIcons
+                    name={cat.icon}
+                    size={16}
+                    color={category === cat.id ? 'white' : '#666'}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={[
+                    styles.chipText,
+                    category === cat.id && { color: 'white' }
+                  ]}>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.selectorContainer}>
+            <Text style={styles.sectionTitle}>Priority</Text>
+            <View style={styles.chipsRow}>
+              {Object.values(PRIORITIES).map((prio) => (
+                <TouchableOpacity
+                  key={prio.id}
+                  style={[
+                    styles.chip,
+                    priority === prio.id && { backgroundColor: prio.color, borderColor: prio.color }
+                  ]}
+                  onPress={() => setPriority(prio.id)}
+                >
+                  <Text style={[
+                    styles.chipText,
+                    priority === prio.id && { color: 'white' }
+                  ]}>
+                    {prio.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
           <View style={styles.saveBtnContainer}>
             <Button title="Save Todo" onPress={handleAddTodo} color="#6200ee" />
@@ -136,6 +198,40 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 10,
     overflow: 'hidden',
+  },
+  selectorContainer: {
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#333',
+  },
+  chipsContainer: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginRight: 10,
+    marginBottom: 10,
+    backgroundColor: 'white',
+  },
+  chipText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
   },
 });
 

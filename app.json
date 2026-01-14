@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Todo Master Pro",
-    "slug": "Full_Todo_App",
+    "name": "QuestLog",
+    "slug": "questlog",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Todo_App_Master.png",

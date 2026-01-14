@@ -1,16 +1,16 @@
 // TodoDetailScreen.js
-import React, { useState,useEffect } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TouchableOpacity, 
-    Alert, 
+import React, { useState, useEffect } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Alert,
     ScrollView,
-    TextInput 
+    TextInput
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTodoContext } from '../storage/todos';
+import { useTodoContext, CATEGORIES, PRIORITIES } from '../storage/todos';
 
 
 const TodoEditModal = ({ route, navigation }) => {
@@ -19,10 +19,14 @@ const TodoEditModal = ({ route, navigation }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(todo.title);
     const [editedNote, setEditedNote] = useState(todo.note || '');
+    const [editedCategory, setEditedCategory] = useState(todo.category || 'other');
+    const [editedPriority, setEditedPriority] = useState(todo.priority || 'medium');
 
     useEffect(() => {
         setEditedTitle(todo.title);
         setEditedNote(todo.note || '');
+        setEditedCategory(todo.category || 'other');
+        setEditedPriority(todo.priority || 'medium');
     }, [todo.title, todo.note]);
 
     const handleToggle = async () => {
@@ -55,13 +59,21 @@ const TodoEditModal = ({ route, navigation }) => {
         const result = await updateTodo(todo.id, {
             title: editedTitle,
             note: editedNote,
+            category: editedCategory,
+            priority: editedPriority,
         });
-        
+
         if (result.includes('Successfully')) {
             setIsEditing(false);
 
             navigation.setParams({
-                todo: { ...todo, title: editedTitle, note: editedNote }
+                todo: {
+                    ...todo,
+                    title: editedTitle,
+                    note: editedNote,
+                    category: editedCategory,
+                    priority: editedPriority
+                }
             });
         }
         Alert.alert('Info', result);
@@ -83,7 +95,7 @@ const TodoEditModal = ({ route, navigation }) => {
                         color={todo.completed ? "green" : "gray"}
                     />
                 </TouchableOpacity>
-                
+
                 <View style={styles.headerActions}>
                     <TouchableOpacity
                         onPress={() => setIsEditing(!isEditing)}
@@ -95,7 +107,7 @@ const TodoEditModal = ({ route, navigation }) => {
                             color="blue"
                         />
                     </TouchableOpacity>
-                    
+
                     <TouchableOpacity
                         onPress={handleDelete}
                         style={styles.actionButton}
@@ -119,7 +131,7 @@ const TodoEditModal = ({ route, navigation }) => {
                             placeholder="Todo title"
                             multiline
                         />
-                        
+
                         <TextInput
                             style={styles.noteInput}
                             value={editedNote}
@@ -128,7 +140,59 @@ const TodoEditModal = ({ route, navigation }) => {
                             multiline
                             textAlignVertical="top"
                         />
-                        
+
+                        <View style={styles.selectorContainer}>
+                            <Text style={styles.sectionTitle}>Category</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
+                                {Object.values(CATEGORIES).map((cat) => (
+                                    <TouchableOpacity
+                                        key={cat.id}
+                                        style={[
+                                            styles.chip,
+                                            editedCategory === cat.id && { backgroundColor: cat.color, borderColor: cat.color }
+                                        ]}
+                                        onPress={() => setEditedCategory(cat.id)}
+                                    >
+                                        <MaterialCommunityIcons
+                                            name={cat.icon}
+                                            size={16}
+                                            color={editedCategory === cat.id ? 'white' : '#666'}
+                                            style={{ marginRight: 5 }}
+                                        />
+                                        <Text style={[
+                                            styles.chipText,
+                                            editedCategory === cat.id && { color: 'white' }
+                                        ]}>
+                                            {cat.label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </View>
+
+                        <View style={styles.selectorContainer}>
+                            <Text style={styles.sectionTitle}>Priority</Text>
+                            <View style={styles.chipsRow}>
+                                {Object.values(PRIORITIES).map((prio) => (
+                                    <TouchableOpacity
+                                        key={prio.id}
+                                        style={[
+                                            styles.chip,
+                                            editedPriority === prio.id && { backgroundColor: prio.color, borderColor: prio.color }
+                                        ]}
+                                        onPress={() => setEditedPriority(prio.id)}
+                                    >
+                                        <Text style={[
+                                            styles.chipText,
+                                            editedPriority === prio.id && { color: 'white' }
+                                        ]}>
+                                            {prio.label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
+
                         <View style={styles.editActions}>
                             <TouchableOpacity
                                 onPress={handleCancel}
@@ -136,7 +200,7 @@ const TodoEditModal = ({ route, navigation }) => {
                             >
                                 <Text style={styles.cancelButtonText}>Cancel</Text>
                             </TouchableOpacity>
-                            
+
                             <TouchableOpacity
                                 onPress={handleSave}
                                 style={[styles.editButton, styles.saveButton]}
@@ -155,7 +219,7 @@ const TodoEditModal = ({ route, navigation }) => {
                         >
                             {todo.title}
                         </Text>
-                        
+
                         {todo.note && (
                             <Text style={styles.note}>{todo.note}</Text>
                         )}
@@ -167,12 +231,12 @@ const TodoEditModal = ({ route, navigation }) => {
                         <MaterialCommunityIcons name="calendar" size={20} color="#666" />
                         <Text style={styles.metadataText}>{todo.time}</Text>
                     </View>
-                    
+
                     <View style={styles.metadataItem}>
-                        <MaterialCommunityIcons 
-                            name={todo.completed ? "check" : "clock"} 
-                            size={20} 
-                            color={todo.completed ? "green" : "orange"} 
+                        <MaterialCommunityIcons
+                            name={todo.completed ? "check" : "clock"}
+                            size={20}
+                            color={todo.completed ? "green" : "orange"}
                         />
                         <Text style={styles.metadataText}>
                             {todo.completed ? 'Completed' : 'Pending'}
@@ -301,6 +365,39 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontSize: 16,
         color: '#666',
+    },
+    selectorContainer: {
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 10,
+        color: '#333',
+    },
+    chipsContainer: {
+        flexDirection: 'row',
+    },
+    chipsRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    chip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        marginRight: 10,
+        marginBottom: 10,
+        backgroundColor: 'white',
+    },
+    chipText: {
+        fontSize: 14,
+        color: '#666',
+        fontWeight: '500',
     },
 });
 

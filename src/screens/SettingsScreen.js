@@ -10,12 +10,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTodoContext } from '../storage/todos';
+import { useTodoContext, CATEGORIES } from '../storage/todos';
 
 const { width } = Dimensions.get('window');
 
 const SettingsScreen = () => {
-  const { stats, todos, refreshTodos } = useTodoContext();
+  const { stats, todos, refreshTodos, user, logout } = useTodoContext();
 
   const handleClearCompleted = () => {
     Alert.alert(
@@ -62,9 +62,31 @@ const SettingsScreen = () => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
+      {/* Profile Section */}
+      <View style={styles.profileHeader}>
+        <View style={styles.avatarContainer}>
+          <MaterialCommunityIcons name="account-circle" size={60} color="#4F46E5" />
+        </View>
+        <View style={styles.profileInfo}>
+          <Text style={styles.username}>{user?.username || 'Hero'}</Text>
+          <Text style={styles.levelBadge}>Level {user?.level || 1}</Text>
+        </View>
+        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+          <MaterialCommunityIcons name="logout" size={24} color="#EF4444" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.xpSection}>
+        <Text style={styles.xpLabel}>Experience: {user?.xp || 0} XP</Text>
+        <View style={styles.xpBarContainer}>
+          <View style={[styles.xpBar, { width: `${Math.min((user?.xp % 100) || 0, 100)}%` }]} />
+        </View>
+        <Text style={styles.xpNextLevel}>{100 - ((user?.xp || 0) % 100)} XP to next level</Text>
+      </View>
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>📊 Your Progress</Text>
-        
+
 
         <View style={styles.statsContainer}>
           <View style={[styles.statCard, { backgroundColor: '#E3F2FD' }]}>
@@ -72,13 +94,13 @@ const SettingsScreen = () => {
             <Text style={styles.statNumber}>{stats.total}</Text>
             <Text style={styles.statLabel}>Total</Text>
           </View>
-          
+
           <View style={[styles.statCard, { backgroundColor: '#E8F5E8' }]}>
             <MaterialCommunityIcons name="check-circle" size={32} color="#388E3C" />
             <Text style={styles.statNumber}>{stats.completed}</Text>
             <Text style={styles.statLabel}>Completed</Text>
           </View>
-          
+
           <View style={[styles.statCard, { backgroundColor: '#FFF3E0' }]}>
             <MaterialCommunityIcons name="clock-outline" size={32} color="#F57C00" />
             <Text style={styles.statNumber}>{stats.pending}</Text>
@@ -89,18 +111,38 @@ const SettingsScreen = () => {
 
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>📈 Breakdown by Category</Text>
+        <View style={styles.categoryStatsGrid}>
+          {Object.values(CATEGORIES).map((cat) => {
+            const count = todos.filter(t => t.category === cat.id).length;
+            if (count === 0) return null;
+            return (
+              <View key={cat.id} style={[styles.categoryStatItem, { borderColor: cat.color }]}>
+                <MaterialCommunityIcons name={cat.icon} size={20} color={cat.color} />
+                <Text style={styles.categoryStatCount}>{count}</Text>
+                <Text style={[styles.categoryStatLabel, { color: cat.color }]}>{cat.label}</Text>
+              </View>
+            );
+          })}
+          {todos.length === 0 && (
+            <Text style={styles.emptyStatsText}>Add some todos to see breakdown!</Text>
+          )}
+        </View>
+      </View>
 
-     
 
-      
 
-        
 
-      
+
+
+
+
+
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>ℹ️ About</Text>
-        
+
         <TouchableOpacity style={styles.infoItem}>
           <MaterialCommunityIcons name="help-circle-outline" size={24} color="#607D8B" />
           <Text style={styles.infoText}>Help & Support</Text>
@@ -253,6 +295,101 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     fontSize: 16,
     color: '#333',
+  },
+  categoryStatsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -5,
+  },
+  categoryStatItem: {
+    width: '30%',
+    margin: '1.5%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderBottomWidth: 3,
+  },
+  categoryStatCount: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginVertical: 4,
+  },
+  categoryStatLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  emptyStatsText: {
+    textAlign: 'center',
+    color: '#999',
+    width: '100%',
+    padding: 20,
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
+    marginBottom: 10,
+  },
+  avatarContainer: {
+    marginRight: 15,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  username: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  levelBadge: {
+    fontSize: 16,
+    color: '#4F46E5',
+    fontWeight: '600',
+  },
+  streakContainer: {
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  streakText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#F59E0B',
+  },
+  logoutButton: {
+    padding: 10,
+  },
+  xpSection: {
+    backgroundColor: '#fff',
+    padding: 15,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  xpLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  xpBarContainer: {
+    height: 10,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  xpBar: {
+    height: '100%',
+    backgroundColor: '#4F46E5',
+  },
+  xpNextLevel: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginTop: 5,
+    textAlign: 'right',
   },
   bottomSpacing: {
     height: 20,

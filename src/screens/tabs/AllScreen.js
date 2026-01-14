@@ -1,12 +1,14 @@
-import React from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { useTodoContext } from "../../storage/todos";
+import React, { useState } from "react";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { useTodoContext, CATEGORIES } from "../../storage/todos";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import TodoItem from "../../components/TodoItem";
 
 const AllScreen = () => {
   const { todos, toggleTodo } = useTodoContext();
   const navigation = useNavigation();
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleToggle = async (id) => {
     await toggleTodo(id);
@@ -16,90 +18,118 @@ const AllScreen = () => {
     navigation.navigate('TodoDetail', { todo });
   };
 
+  const filteredTodos = selectedCategory
+    ? todos.filter(todo => todo.category === selectedCategory)
+    : todos;
+
   return (
-    <FlatList
-      data={todos}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.todoItem}
-          onPress={() => handleTodoPress(item)}
-          activeOpacity={0.7}
-        >
-          <TouchableOpacity onPress={() => handleToggle(item.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <MaterialCommunityIcons
-              name={item.completed ? "check-circle" : "circle-outline"}
-              size={24}
-              color={item.completed ? "green" : "gray"}
-            />
+    <View style={styles.container}>
+      <View style={styles.filterContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContent}>
+          <TouchableOpacity
+            style={[
+              styles.filterChip,
+              !selectedCategory && styles.activeFilterChip
+            ]}
+            onPress={() => setSelectedCategory(null)}
+          >
+            <Text style={[styles.filterText, !selectedCategory && styles.activeFilterText]}>All</Text>
           </TouchableOpacity>
 
-          <View style={styles.textContainer}>
-            <Text
+          {Object.values(CATEGORIES).map((cat) => (
+            <TouchableOpacity
+              key={cat.id}
               style={[
-                styles.title,
-                item.completed && styles.completedText,
+                styles.filterChip,
+                selectedCategory === cat.id && { backgroundColor: cat.color, borderColor: cat.color }
               ]}
+              onPress={() => setSelectedCategory(cat.id === selectedCategory ? null : cat.id)}
             >
-              {item.title}
+              <MaterialCommunityIcons
+                name={cat.icon}
+                size={16}
+                color={selectedCategory === cat.id ? 'white' : '#666'}
+                style={{ marginRight: 5 }}
+              />
+              <Text style={[
+                styles.filterText,
+                selectedCategory === cat.id && { color: 'white' }
+              ]}>
+                {cat.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <FlatList
+        data={filteredTodos}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TodoItem
+            todo={item}
+            onToggle={handleToggle}
+            onPress={handleTodoPress}
+          />
+        )}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <MaterialCommunityIcons
+              name="note-plus-outline"
+              size={80}
+              color="#e0e0e0"
+              style={styles.emptyIcon}
+            />
+            <Text style={styles.emptyTitle}>
+              {selectedCategory ? "No Todos in this Category" : "No Todos Yet"}
             </Text>
-            <Text style={styles.date}>{item.time}</Text>
+            <Text style={styles.emptySubtitle}>
+              {selectedCategory ? "Tap + to add one!" : "Tap the + button to create your first todo and get started!"}
+            </Text>
           </View>
-          <MaterialCommunityIcons
-            name="chevron-right"
-            size={20}
-            color="#999"
-          />
-        </TouchableOpacity>
-      )}
-      ListEmptyComponent={
-        <View style={styles.emptyContainer}>
-          <MaterialCommunityIcons
-            name="note-plus-outline"
-            size={80}
-            color="#e0e0e0"
-            style={styles.emptyIcon}
-          />
-          <Text style={styles.emptyTitle}>No Todos Yet</Text>
-          <Text style={styles.emptySubtitle}>
-            Tap the + button to create your first todo and get started!
-          </Text>
-        </View>
-      }
-      contentContainerStyle={todos.length === 0 ? styles.emptyListContainer : null}
-    />
+        }
+        contentContainerStyle={filteredTodos.length === 0 ? styles.emptyListContainer : { paddingBottom: 100 }}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  todoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderColor: "#eee",
-    backgroundColor: "white",
-  },
-  textContainer: {
+  container: {
     flex: 1,
-    marginLeft: 12,
+    backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
+  filterContainer: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
-  completedText: {
-    textDecorationLine: "line-through",
-    color: "gray",
+  filterContent: {
+    paddingHorizontal: 15,
   },
-  date: {
-    fontSize: 12,
-    color: "#777",
-    marginTop: 2,
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#eee',
+    marginRight: 10,
+    backgroundColor: '#fff',
   },
-
+  activeFilterChip: {
+    backgroundColor: '#333',
+    borderColor: '#333',
+  },
+  filterText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '600',
+  },
+  activeFilterText: {
+    color: '#fff',
+  },
   emptyListContainer: {
     flex: 1,
   },

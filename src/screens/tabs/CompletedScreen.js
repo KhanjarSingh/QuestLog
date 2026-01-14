@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 import { useTodoContext } from "../../storage/todos";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import TodoItem from "../../components/TodoItem";
 
 const CompletedScreen = () => {
   const { completedTodos, toggleTodo } = useTodoContext();
@@ -21,35 +22,11 @@ const CompletedScreen = () => {
       data={completedTodos}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.todoItem}
-          onPress={() => handleTodoPress(item)}
-          activeOpacity={0.7}
-        >
-          <TouchableOpacity onPress={() => handleToggle(item.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <MaterialCommunityIcons
-              name={item.completed ? "check-circle" : "circle-outline"}
-              size={24}
-              color={item.completed ? "green" : "gray"}
-            />
-          </TouchableOpacity>
-          <View style={styles.textContainer}>
-            <Text
-              style={[
-                styles.title,
-                item.completed && styles.completedText,
-              ]}
-            >
-              {item.title}
-            </Text>
-            <Text style={styles.date}>{item.time}</Text>
-          </View>
-          <MaterialCommunityIcons
-            name="chevron-right"
-            size={20}
-            color="#999"
-          />
-        </TouchableOpacity>
+        <TodoItem
+          todo={item}
+          onToggle={handleToggle}
+          onPress={handleTodoPress}
+        />
       )}
       ListEmptyComponent={
         <View style={styles.emptyContainer}>
@@ -65,39 +42,12 @@ const CompletedScreen = () => {
           </Text>
         </View>
       }
-      contentContainerStyle={completedTodos.length === 0 ? styles.emptyListContainer : null}
+      contentContainerStyle={completedTodos.length === 0 ? styles.emptyListContainer : { paddingBottom: 100 }}
     />
   );
 };
 
 const styles = StyleSheet.create({
-  todoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderColor: "#eee",
-    backgroundColor: "white",
-  },
-  textContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-  completedText: {
-    textDecorationLine: "line-through",
-    color: "gray",
-  },
-  date: {
-    fontSize: 12,
-    color: "#777",
-    marginTop: 2,
-  },
   // Empty state styles
   emptyListContainer: {
     flex: 1,
