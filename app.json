@@ -4,7 +4,7 @@
     "slug": "questlog",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/Todo_App_Master.png",
+    "icon": "./assets/applogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/Todo_App_Master.png",
+        "foregroundImage": "./assets/applogo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

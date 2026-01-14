@@ -1,3 +1,8 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTodoContext, CATEGORIES, PRIORITIES } from '../storage/todos';
+
 const TodoEditModal = ({ route, navigation }) => {
     const { todo } = route.params;
     const { toggleTodo, deleteTodo, updateTodo } = useTodoContext();
@@ -15,8 +20,16 @@ const TodoEditModal = ({ route, navigation }) => {
     }, [todo.title, todo.note]);
 
     const handleToggle = async () => {
-        await toggleTodo(todo.id);
-        navigation.goBack()
+        const result = await toggleTodo(todo.id);
+        if (result.success) {
+            navigation.goBack();
+        } else {
+            if (result.error.includes("already complete")) {
+                Alert.alert("Quest Locked", "This quest is already complete! No take-backs.");
+            } else {
+                Alert.alert("Error", "Failed to update quest status.");
+            }
+        }
     };
 
     const handleDelete = () => {

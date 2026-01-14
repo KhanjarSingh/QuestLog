@@ -130,10 +130,10 @@ export const TodoProvider = ({ children }) => {
       if (data.xp !== user.xp || data.streak !== user.streak || data.rank !== user.rank) {
         setUser({ ...user, xp: data.xp, level: data.level, streak: data.streak, rank: data.rank });
       }
-      return data.todo;
+      return { success: true, todo: data.todo };
     } catch (error) {
-      console.error("ToggleTodo Error:", error);
-      return null;
+      //   console.error("ToggleTodo Error:", error);
+      return { success: false, error: error.message };
     }
   };
 
