@@ -46,8 +46,8 @@ const MainApp = () => {
         tabBarActiveTintColor: '#4F46E5',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          height: 85, // Increased from 60 to accomodate "safe area"
-          paddingBottom: 25, // Push icons up to avoid rounded corners
+          height: 85, 
+          paddingBottom: 25, 
           paddingTop: 8,
           backgroundColor: '#ffffff',
           borderTopWidth: 0,
